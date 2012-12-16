@@ -1,0 +1,44 @@
+struct tklijent{
+    char prez_ime[70];
+    float datum;
+  int god;
+	int vrstat;
+    long double sta_tek;
+	long double sta_dev;
+	int pr;	
+};
+
+struct tred{
+	tklijent elm[10000];
+	int d,r;
+};
+typedef tklijent el;
+typedef tred qe;
+
+element FrontQ(tred *q){
+    return q->k[q->d];   
+}
+
+bool IsEmptyQ(tred *q){
+	if(AddOne(q->r)==q->d)
+		return true;
+	return false;
+}
+int AddOne(int i) {
+	return ((i+1)%10000);
+}
+tred* InitQ(tred *q){
+    q = new tred;
+    q->d = 0;
+	q->r = 9999;
+	return q;
+}
+void DeQueueQ(tred *q){
+	q->d=AddOne(q->d);
+}
+void EnQueueQ(el y, tred *q){
+    q->r=AddOne(q->r);
+    q->k[q->r] = y;
+}
+
+
