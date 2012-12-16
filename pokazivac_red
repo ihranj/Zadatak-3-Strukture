@@ -1,0 +1,54 @@
+struct tklijent{
+    char prez_ime[70];
+    float datum;
+  int god;
+	int vrstat;
+    long double sta_tek;
+	long double sta_dev;
+	int pr;
+	
+};
+
+struct elem{
+	tklijent k;
+	elem *p;
+};
+struct tred{
+	elem *d,*r;
+	tred(){}
+};
+typedef tklijent el;
+typedef tred qe;
+
+bool IsEmptyQ(tred *q){
+	if(q->r==q->d)
+		return true;
+	return false;
+}
+tklijent FrontQ(tred *q){
+   return q->d->p->k;
+   }
+   
+tred* InitQ(tred *q){
+	elem *novi=new elem;
+	q = new tred;
+	novi->p=NULL;
+	q->r=novi;
+	q->d=novi;
+	return q;
+}
+
+void EnQueueQ(el y, tred *q){
+	elem *novi=new elem;
+	novi->k = y;
+	novi->p=NULL;
+	q->r->p=novi;
+	q->r=novi;
+}
+void DeQueueQ(tred *q){
+	elem *brisi = q->d;
+	q->d = brisi->p;
+    delete brisi;
+}
+
+
