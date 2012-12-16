@@ -1,0 +1,318 @@
+#include<iostream>
+#include<cstdlib>
+using namespace std;
+#include "pokazivac_red.h"
+//#include "polje_red.h"
+
+void generiranje() {
+  int n;
+	cout << "Koliko zapisa zelite generirati: ";
+	cin >> n;
+    int *zapis = new int[n*4];
+	int i=0;
+	while(i<n*4){
+		zapis[i] = rand()%400+100;
+		zapis[i+1] = rand()%400+100;
+		zapis[i+2] = rand()%6+1;
+		if(zapis[i+2]==6)
+			zapis[i+3]=3;
+		else
+			zapis[i+3] = rand()%4+1;
+		i+=4;
+	}
+     i=0;
+	cout<<"Salter: "<<endl<<endl;
+	while(i<n*4) {
+		cout<<"Klijenti "<<i/4+1<<":\t";
+		cout<< "  ai = "<<zapis[i];
+		cout<< "  bi = "<<zapis[i+1];
+		cout<< "  ci = "<<zapis[i+2];
+		cout<< "  di = "<<zapis[i+3];
+		cout<<endl;
+		i+=4;
+	}
+    delete[] zapis;
+}
+void sort_kl(tred *q){
+	if(IsEmptyQ(q)==false){
+		tred *pom = InitQ(pom);
+		tred *new_red = InitQ(new_red);
+		for(int j=1; j<=6; j++) {
+			while(IsEmptyQ(q)==false){
+				tklijent klijent=FrontQ(q);
+				DeQueueQ(q);
+				if(klijent.pr==j){
+					EnQueueQ(klijent, new_red);
+				}
+				else{
+					EnQueueQ(klijent, pom);
+				}
+			}
+			while(IsEmptyQ(pom)==false){
+				tklijent klijent=FrontQ(pom);
+				DeQueueQ(pom);
+				EnQueueQ(klijent, q);
+			}
+		}
+		while(IsEmptyQ(new_red)==false){
+			tklijent klijent=FrontQ(new_red);
+			DeQueueQ(new_red);
+			EnQueueQ(klijent, q);
+		}
+		delete pom;
+		delete new_red;
+	} 
+}
+
+void ispis(tred *q) {
+    cout<<"Ispis reda:"<<endl<<endl;
+    tklijent klijent;
+	tred *pom = InitQ(pom);
+	while(IsEmptyQ(q)==false){
+		klijent=FrontQ(q);
+		DeQueueQ(q);
+		EnQueueQ(klijent,pom);
+	}
+	while(IsEmptyQ(pom)==false){
+		klijent=FrontQ(pom);
+		DeQueueQ(pom);
+		EnQueueQ(klijent, q);
+        cout<<"Ime i prezime: "<<klijent.prez_ime<<endl;
+		cout<<"Datum rodjenja: "<<klijent.datum<<"."<<klijent.god<<endl;
+        if(klijent.pr == 1) cout<<"Prioritet: Umirovljenik"<<endl;
+		      else if(klijent.pr == 2) 
+                           cout<<"Prioritet: Invalid"<<endl;
+	        	else if(klijent.pr == 3) 
+                           cout<<"Prioritet: Trudnica"<<endl;
+	         	else if(klijent.pr == 4) 
+                           cout<<"Prioritet: Vip klijenti banke"<<endl;
+	 	        else if(klijent.pr == 5) 
+                           cout<<"Prioritet: Ostali klijenti banke"<<endl;
+		        else if(klijent.pr == 6)
+                            cout<<"Prioritet: Nisu klijenti banke"<<endl;
+        if(klijent.vrstat == 1) 
+                             cout<<"Vrsta transakcije: Uplata"<<endl;
+		      else if(klijent.vrstat == 2) 
+                               cout<<"Vrsta transakcije: Isplata"<<endl;
+		      else if(klijent.vrstat == 3)
+                                cout<<"Vrsta transakcije: Placanje racuna"<<endl;
+		       else if(klijent.vrstat == 4)
+         cout<<"Vrsta transakcije: Kredit"<<endl;
+        cout<<"Tekuci racun: "<<klijent.sta_tek<<endl;
+		cout<<"Devizni racun(€): "<<klijent.sta_dev<<endl;
+		cout<<"----------------------------------"<<endl;
+	}
+	delete pom;
+}
+
+void unos_klijenta(tred *q) {
+	tklijent novi_klijent;
+	char d;
+	do{
+		cout<<"Ime i prezime: ";
+		cin.ignore();
+		cin.getline(novi_klijent.prez_ime,70);
+
+		cout<< "Datum rodjenja: ";
+		cin>>novi_klijent.datum;
+        
+        cout<<"Godina rodenja: ";
+        cin>>novi_klijent.god;
+
+		cout<< "Stanje tekuceg racuna: ";
+		cin>> novi_klijent.sta_tek;
+
+		cout<< "Stanje deviznog racuna(u Eurima): ";
+		cin >> novi_klijent.sta_dev;
+
+		cout<<"Prioritet: 1-umirovljenik, 2-invalid, 3-trudnica, 4-vip klijent,"<<endl;
+		cout<<"           5-ostali klijent, 6-nije klijent"<<endl;
+		cout<<"Prioritet: ";
+	 cin >>	novi_klijent.pr;
+
+		if(novi_klijent.pr==6){
+			novi_klijent.vrstat=3;
+			cout<<"Transakcija: "<<novi_klijent.vrstat<<endl;
+		}else{
+			cout<<"Vrste transakcija: 1-uplata, 2-isplata, 3-placanje racuna, 4-krediti"<<endl;
+			cout<<"Transakcija: ";
+			cin >>novi_klijent.vrstat;
+		}
+		EnQueueQ(novi_klijent, q);
+    	cout<<"____________________________"<<endl;
+      	cout<<"Jos? (d/n) ";
+		cin >> d;
+     	cout<<endl;
+	}while(d=='d');
+    sort_kl(q);
+    tklijent klijent;
+	tred *pom = InitQ(pom);
+	while(IsEmptyQ(q)==false){
+		klijent=FrontQ(q);
+		DeQueueQ(q);
+		EnQueueQ(klijent,pom);
+	}
+	cout<<"Klijenati koji imaju vise od 10000kn(ili 1350 Eura) na deviznom racunu u(Eurima):"<<endl<<endl;
+	while(IsEmptyQ(pom)==false){
+		klijent=FrontQ(pom);
+		DeQueueQ(pom);
+		EnQueueQ(klijent, q);
+		if(klijent.sta_dev>1350) {
+			cout<<"Ime i prezime: "<<klijent.prez_ime<<endl;
+			cout<<"Datum rodjenja: "<<klijent.datum<<"."<<klijent.god<<endl;
+			cout<<"Prioritet:"<<klijent.pr<<endl;
+			cout<<"Vrsta transakcije: "<<klijent.vrstat<<endl;
+			cout<<"Tekuci racun: "<<klijent.sta_tek<<endl;
+			cout<<"Devizni racun: "<<klijent.sta_dev<<endl;
+			cout<<"_______________________________"<<endl;
+		}
+	}
+	delete pom;
+}
+
+void br_trans(tred *q){
+	tred *br_red= InitQ(br_red);
+	tklijent klijent;
+	tred *pom = InitQ(pom);
+	while(IsEmptyQ(q)==false){
+		klijent=FrontQ(q);
+		DeQueueQ(q);
+		if(klijent.vrstat==3)
+			EnQueueQ(klijent,br_red);
+		else
+			EnQueueQ(klijent,pom);
+	}
+	cout <<"Klijenti u brzom redu"<<endl<<endl;
+	while(IsEmptyQ(br_red)==false){
+		klijent=FrontQ(br_red);
+		DeQueueQ(br_red);
+		cout<<"Ime i prezime: "<<klijent.prez_ime<<endl;
+		cout<<"Datum rodjenja: "<<klijent.datum<<"."<<klijent.god<<endl;
+		cout<<"Prioritet:"<<klijent.pr<<endl;
+		cout<<"Vrsta transakcije: "<<klijent.vrstat<<endl;
+		cout<<"Tekuci racun: "<<klijent.sta_tek<<endl;
+		cout<<"Devizni racun: "<<klijent.sta_dev<<endl;
+		cout<<"_______________________________"<<endl;
+	}
+	cout<<"Klijenti u glavnom redu"<<endl<<endl;
+	while(IsEmptyQ(pom)==false){
+		klijent=FrontQ(pom);
+		DeQueueQ(pom);
+		EnQueueQ(klijent, q);
+		cout<<"Ime i prezime: "<<klijent.prez_ime<<endl;
+		cout<<"Datum rodjenja: "<<klijent.datum<<"."<<klijent.god<<endl;
+		cout<<"Prioritet:"<<klijent.pr<<endl;
+		cout<<"Vrsta transakcije: "<<klijent.vrstat<<endl;
+		cout<<"Tekuci racun: "<<klijent.sta_tek<<endl;
+		cout<<"Devizni racun: "<<klijent.sta_dev<<endl;
+		cout<<"----------------------------------"<<endl;
+	}
+	delete pom;
+	delete br_red;
+}
+
+void brisanje_klijenta(tred *q){
+	tklijent klijent;
+	tred *pom = InitQ(pom);
+	while(IsEmptyQ(q)==false){
+		klijent=FrontQ(q);
+		if(klijent.pr==4 && klijent.god>1972 && klijent.vrstat==1 && klijent.sta_tek<100)
+			DeQueueQ(q);
+		else if(klijent.pr==1 && klijent.vrstat==2 && klijent.sta_tek>5000)
+			DeQueueQ(q);
+		else {
+			DeQueueQ(q);
+			EnQueueQ(klijent,pom);
+		}
+	}
+	cout<<"Klijenti ostali u glavnom redu:"<<endl<<endl;
+	while(IsEmptyQ(pom)==false){
+		klijent=FrontQ(pom);
+		DeQueueQ(pom);
+		EnQueueQ(klijent, q);
+		cout<<"Ime i prezime: "<<klijent.prez_ime<<endl;
+		cout<<"Datum rodjenja: "<<klijent.datum<<"."<<klijent.god<<endl;
+		cout<<"Prioritet:"<<klijent.pr<<endl;
+		cout<<"Vrsta transakcije: "<<klijent.vrstat<<endl;
+		cout<<"Tekuci racun: "<<klijent.sta_tek<<endl;
+		cout<<"Devizni racun: "<<klijent.sta_dev<<endl;
+		cout<<"__________________________________"<<endl;
+	}
+	delete pom;
+}
+
+void rek(tred *q, tred *new_red, int br=0){
+     float uk;
+	if(IsEmptyQ(q)==true) {
+		uk = br;
+		return;
+	}
+	tklijent klijent=FrontQ(q);
+	DeQueueQ(q);
+	br++;
+	rek(q, new_red, br);
+	if(br>(uk-uk*3/10) ) {
+		br--;
+		EnQueueQ(klijent, new_red);
+	}else{
+		EnQueueQ(klijent, q);
+	}
+}
+void obrnuti_red(tred *q){
+	if(IsEmptyQ(q)==true)
+		return;
+	tklijent klijent;
+	klijent=FrontQ(q);
+	DeQueueQ(q);
+	obrnuti_red(q);
+	EnQueueQ(klijent, q);
+}
+void rek(tred *q) {
+	tred *new_red=InitQ(new_red);
+	rek(q, new_red);
+	obrnuti_red(q);
+	cout<<"Klijenti u glavnom redu:"<<endl<<endl;
+	ispis(q);
+	cout<<endl;
+	cout<<"Klijenti u novom redu:"<<endl<<endl;
+	ispis(new_red);
+	while(IsEmptyQ(new_red)==false)
+		DeQueueQ(new_red);
+	delete new_red;
+}
+
+int main(){
+    tred *q = InitQ(q);
+    generiranje();
+    int izbor;
+    do{
+		cout<<endl;
+	    cout<<" ODABIR: "<<endl;
+        cout<<"1. Dodavanje klijenata"<<endl;
+        cout<<"2. Simulacija brzih transakcija"<<endl;
+        cout<<"3. Brisanje umirovljenika i VIP klijenta"<<endl;
+        cout<<"4. Simulacija otvaranja novog saltera"<<endl;
+        cout<<"9. Izlaz iz programa"<<endl;
+        cout<<"Vas izbor: ";
+		cin>>izbor;
+		cout<<endl<<endl;
+        switch(izbor){
+			case 1:system("cls");
+				unos_klijenta(q);
+					break;
+			case 2:system("cls");
+				br_trans(q);
+					break;
+			case 3:system("cls");
+				brisanje_klijenta(q);
+					break;
+			case 4:system("cls");
+				rek(q);
+					break;
+			case 9: break;
+			default: cout<<"Pogresan izbor. Ponovite unos."<<endl;
+		}
+    }while(izbor != 9);
+    system("pause");
+    return 0;
+}
